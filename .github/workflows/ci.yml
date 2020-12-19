@@ -2,8 +2,9 @@ name: Flutter release
 
 on:
   push:
-    - main
-    - develop
+    branches:
+      - main
+      - develop
 
 jobs:
   release:
