@@ -4,11 +4,37 @@ A new Flutter package project.
 
 ## Getting Started
 
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
+```
+import 'package:flutter/material.dart';
+import 'package:flutter_api_services/flutter_api_services.dart';
 
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+void main() => runApp(App());
+
+class App extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ApiServices(
+        child: MaterialApp(
+          title: 'Api Services',
+          home: ...,
+        ),
+    );
+  }
+}
+
+```
+
+```
+  final Map<String, FieldModel> _map = Map<String, FieldModel>();
+  UserService _userService;
+  FirestorageService _firestorageService;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _userService = Provider.of<UserService>(context, listen: false);
+    _firestorageService =
+        Provider.of<FirestorageService>(context, listen: false);
+  }
+```
