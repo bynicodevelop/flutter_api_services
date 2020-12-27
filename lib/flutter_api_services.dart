@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_api_services/FirestorageService.dart';
 import 'package:flutter_api_services/FirestoreService.dart';
 import 'package:flutter_api_services/UserService.dart';
+import 'package:flutter_api_services/UsersService.dart';
 import 'package:flutter_api_services/getaway/FirebaseAuthGetaway.dart';
 import 'package:flutter_api_services/getaway/FirestorageServiceGetaway.dart';
 import 'package:flutter_api_services/getaway/FirestoreServiceGetaway.dart';
@@ -43,6 +44,11 @@ class ApiServices extends StatelessWidget {
             Provider<FirestorageService>(
               create: (_) => FirestorageService(
                 firestorageServiceGetaway: FirestorageServiceGetaway(),
+              ),
+            ),
+            Provider<UsersService>(
+              create: (_) => UsersService(
+                firestoreServiceGetaway: FirestoreServiceGetaway(),
               ),
             ),
           ],

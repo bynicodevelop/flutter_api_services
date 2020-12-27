@@ -27,6 +27,11 @@ class UserService {
         username: data[UserModel.USERNAME],
         status: data[UserModel.STATUS],
         avatarURL: data[UserModel.AVATAR_URL],
+        // Follow-ers/ings
+        followers: data[UserModel.FOLLOWERS]?.length ?? 0,
+        followings: data[UserModel.FOLLOWINGS]?.length ?? 0,
+        followersList: List<String>.from(data[UserModel.FOLLOWERS] ?? []),
+        followingsList: List<String>.from(data[UserModel.FOLLOWINGS] ?? []),
       );
     });
   }
