@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_api_services/ChatService.dart';
 import 'package:flutter_api_services/FirestorageService.dart';
 import 'package:flutter_api_services/FirestoreService.dart';
 import 'package:flutter_api_services/UserService.dart';
@@ -49,6 +50,11 @@ class ApiServices extends StatelessWidget {
             Provider<UsersService>(
               create: (_) => UsersService(
                 firestoreServiceGetaway: FirestoreServiceGetaway(),
+              ),
+            ),
+            Provider<ChatService>(
+              create: (_) => ChatService(
+                firestoreService: firestoreService,
               ),
             ),
           ],

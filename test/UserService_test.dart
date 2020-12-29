@@ -1,5 +1,4 @@
 import 'package:flutter_api_services/FirestoreService.dart';
-import 'package:flutter_api_services/getaway/FirestoreServiceGetaway.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
 import 'package:flutter_api_services/UserService.dart';
@@ -442,6 +441,50 @@ main() {
           ),
         ),
       );
+    });
+  });
+
+  group('UserService.getFollowers', () {
+    test('Should return an user list from list ID', () async {
+      // ARRANGE
+      final _MockFirestoreService firestoreService = _MockFirestoreService();
+
+      when(firestoreService.getUsersByIds(
+        ['123', '456'],
+      )).thenAnswer((_) => Future.value([
+            {'uid': '123'},
+            {'uid': '456'},
+          ]));
+
+      final UserService userService = UserService(
+          firebaseAuthGetaway: null, firestoreService: firestoreService);
+
+      // ACT
+      List<UserModel> followersProfiles =
+          await userService.getFollowers(['123', '456']);
+
+      // ASSERT
+      expect(followersProfiles.length, 2);
+      expect(followersProfiles[0].uid, '123');
+      expect(followersProfiles[1].uid, '456');
+    });
+
+    test('Should return an user list from an empty list', () async {
+      // ARRANGE
+      final _MockFirestoreService firestoreService = _MockFirestoreService();
+
+      when(firestoreService.getUsersByIds(
+        [],
+      )).thenAnswer((_) => Future.value([]));
+
+      final UserService userService = UserService(
+          firebaseAuthGetaway: null, firestoreService: firestoreService);
+
+      // ACT
+      List<UserModel> followersProfiles = await userService.getFollowers([]);
+
+      // ASSERT
+      expect(followersProfiles.length, 0);
     });
   });
 }

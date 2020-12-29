@@ -9,23 +9,47 @@ class UsersService {
   });
 
   Stream<UserModel> getUserProfile(String uid) {
-    return firestoreServiceGetaway.getSnapshotById('users', uid).map(
-          (e) => e != null
-              ? UserModel(
-                  uid: e[UserModel.UID],
-                  username: e[UserModel.USERNAME],
-                  avatarURL: e[UserModel.AVATAR_URL],
-                  status: e[UserModel.STATUS],
-                  // Follow-ers/ings
-                  followers: e[UserModel.FOLLOWERS]?.length ?? 0,
-                  followings: e[UserModel.FOLLOWINGS]?.length ?? 0,
-                  followersList:
-                      List<String>.from(e[UserModel.FOLLOWERS] ?? []),
-                  followingsList:
-                      List<String>.from(e[UserModel.FOLLOWINGS] ?? []),
-                )
-              : null,
-        );
+    return firestoreServiceGetaway.getSnapshotById('users', uid).map((e) {
+      return e != null
+          ? UserModel(
+              uid: e[UserModel.UID],
+              username: e[UserModel.USERNAME],
+              avatarURL: e[UserModel.AVATAR_URL],
+              status: e[UserModel.STATUS],
+              // Follow-ers/ings
+              followers: e[UserModel.FOLLOWERS] ?? 0,
+              followings: e[UserModel.FOLLOWINGS] ?? 0,
+              followersList: List<Map<String, dynamic>>.from(
+                  e[UserModel.FOLLOWERS_LIST] ?? []),
+              followingsList: List<Map<String, dynamic>>.from(
+                  e[UserModel.FOLLOWINGS_LIST] ?? []),
+            )
+          : null;
+    });
+  }
+
+  Future<List<UserModel>> getUsersByReference(List<dynamic> references) async {
+    return Future.wait(
+        references.map((e) async => await getUserByReference(e)).toList());
+  }
+
+  Future<UserModel> getUserByReference(dynamic reference) async {
+    Map<String, dynamic> e =
+        await firestoreServiceGetaway.getReference(reference);
+
+    return UserModel(
+      uid: e[UserModel.UID],
+      username: e[UserModel.USERNAME],
+      avatarURL: e[UserModel.AVATAR_URL],
+      status: e[UserModel.STATUS],
+      // Follow-ers/ings
+      followers: e[UserModel.FOLLOWERS] ?? 0,
+      followings: e[UserModel.FOLLOWINGS] ?? 0,
+      followersList:
+          List<Map<String, dynamic>>.from(e[UserModel.FOLLOWERS_LIST] ?? []),
+      followingsList:
+          List<Map<String, dynamic>>.from(e[UserModel.FOLLOWINGS_LIST] ?? []),
+    );
   }
 
   Future<List<UserModel>> get() async {
@@ -39,8 +63,8 @@ class UsersService {
             username: e[UserModel.USERNAME],
             avatarURL: e[UserModel.AVATAR_URL],
             status: e[UserModel.STATUS],
-            followers: e[UserModel.FOLLOWERS]?.length ?? 0,
-            followings: e[UserModel.FOLLOWINGS]?.length ?? 0,
+            followers: e[UserModel.FOLLOWERS] ?? 0,
+            followings: e[UserModel.FOLLOWINGS] ?? 0,
           ),
         )
         .toList();
@@ -52,38 +76,39 @@ class UsersService {
     Map<String, dynamic> userTo =
         await firestoreServiceGetaway.getById('users', uidTo);
 
-    if (userTo['followers'] == null || userTo['followers'].length == 0) {
-      await firestoreServiceGetaway.updateByDocument('users', uidTo, {
-        'followers': [uidFrom]
-      });
-    }
+    bool result = await firestoreServiceGetaway.documentInCollectionExists(
+        'users', 'followings', uidFrom, uidTo);
 
-    if (userTo['followers'] != null) {
-      if (!userTo['followers'].contains(uidFrom)) {
-        userTo['followers'].add(uidFrom);
-      } else {
-        userTo['followers'].remove(uidFrom);
-      }
+    if (!result) {
+      firestoreServiceGetaway.updateReference(userForm['reference'],
+          {'followings': (userForm['followings'] ?? 0) + 1});
+      // userForm['reference']
+      //     .update({'followings': (userForm['followings'] ?? 0) + 1});
 
-      await firestoreServiceGetaway
-          .updateByDocument('users', uidTo, {'followers': userTo['followers']});
-    }
+      firestoreServiceGetaway.updateReference(
+          userTo['reference'], {'followers': (userTo['followers'] ?? 0) + 1});
+      // userTo['reference'].update({'followers': (userTo['followers'] ?? 0) + 1});
 
-    if (userForm['followings'] == null || userForm['followings'].length == 0) {
-      await firestoreServiceGetaway.updateByDocument('users', uidFrom, {
-        'followings': [uidTo]
-      });
-    }
+      await firestoreServiceGetaway.addDocumentInCollection(
+          'users', 'followings', uidFrom, userTo);
 
-    if (userForm['followings'] != null) {
-      if (!userForm['followings'].contains(uidTo)) {
-        userForm['followings'].add(uidTo);
-      } else {
-        userForm['followings'].remove(uidTo);
-      }
+      await firestoreServiceGetaway.addDocumentInCollection(
+          'users', 'followers', uidTo, userForm);
+    } else {
+      firestoreServiceGetaway.updateReference(userForm['reference'],
+          {'followings': (userForm['followings'] ?? 1) - 1});
+      // userForm['reference']
+      //     .update({'followings': (userForm['followings'] ?? 1) - 1});
 
-      await firestoreServiceGetaway.updateByDocument(
-          'users', uidFrom, {'followings': userForm['followings']});
+      firestoreServiceGetaway.updateReference(
+          userTo['reference'], {'followers': (userTo['followers'] ?? 1) - 1});
+      // userTo['reference'].update({'followers': (userTo['followers'] ?? 1) - 1});
+
+      await firestoreServiceGetaway.removeDocumentInCollection(
+          'users', 'followings', uidFrom, uidTo);
+
+      await firestoreServiceGetaway.removeDocumentInCollection(
+          'users', 'followers', uidTo, uidFrom);
     }
   }
 }

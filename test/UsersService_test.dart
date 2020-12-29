@@ -136,6 +136,12 @@ main() {
         }),
       );
 
+      when(firestoreServiceGetaway.documentInCollectionExists(
+              'users', 'followings', '123', '456'))
+          .thenAnswer(
+        (_) => Future.value(false),
+      );
+
       final UsersService usersService = UsersService(
         firestoreServiceGetaway: firestoreServiceGetaway,
       );
@@ -144,34 +150,40 @@ main() {
       await usersService.updateRelations('123', '456');
 
       // ASSERT
+      verify(firestoreServiceGetaway.updateReference(any, any));
+
       verify(
-        firestoreServiceGetaway.updateByDocument('users', '456', {
-          'followers': ['123']
-        }),
+        firestoreServiceGetaway.addDocumentInCollection(
+            'users', 'followings', '123', any),
       );
 
       verify(
-        firestoreServiceGetaway.updateByDocument('users', '123', {
-          'followings': ['456']
-        }),
+        firestoreServiceGetaway.addDocumentInCollection(
+            'users', 'followers', '456', any),
       );
     });
 
-    test('Should create new relation between 2 users', () async {
+    test('Should remove relation between 2 users', () async {
       // ARRANGE
       final _MockFirestoreServiceGetaway firestoreServiceGetaway =
           _MockFirestoreServiceGetaway();
 
       when(firestoreServiceGetaway.getById('users', '456')).thenAnswer(
         (_) => Future.value({
-          'followers': [],
+          'followers': null,
         }),
       );
 
       when(firestoreServiceGetaway.getById('users', '123')).thenAnswer(
         (_) => Future.value({
-          'followings': [],
+          'followings': null,
         }),
+      );
+
+      when(firestoreServiceGetaway.documentInCollectionExists(
+              'users', 'followings', '123', '456'))
+          .thenAnswer(
+        (_) => Future.value(true),
       );
 
       final UsersService usersService = UsersService(
@@ -182,90 +194,16 @@ main() {
       await usersService.updateRelations('123', '456');
 
       // ASSERT
-      verify(
-        firestoreServiceGetaway.updateByDocument('users', '456', {
-          'followers': ['123']
-        }),
-      );
+      verify(firestoreServiceGetaway.updateReference(any, any));
 
       verify(
-        firestoreServiceGetaway.updateByDocument('users', '123', {
-          'followings': ['456']
-        }),
-      );
-    });
-
-    test('Should remove new relation between 2 users', () async {
-      // ARRANGE
-      final _MockFirestoreServiceGetaway firestoreServiceGetaway =
-          _MockFirestoreServiceGetaway();
-
-      when(firestoreServiceGetaway.getById('users', '456')).thenAnswer(
-        (_) => Future.value({
-          'followers': ['123'],
-        }),
-      );
-
-      when(firestoreServiceGetaway.getById('users', '123')).thenAnswer(
-        (_) => Future.value({
-          'followings': ['456'],
-        }),
-      );
-
-      final UsersService usersService = UsersService(
-        firestoreServiceGetaway: firestoreServiceGetaway,
-      );
-
-      // ACT
-      await usersService.updateRelations('123', '456');
-
-      // ASSERT
-      verify(
-        firestoreServiceGetaway
-            .updateByDocument('users', '456', {'followers': []}),
+        firestoreServiceGetaway.removeDocumentInCollection(
+            'users', 'followings', '123', '456'),
       );
 
       verify(
-        firestoreServiceGetaway
-            .updateByDocument('users', '123', {'followings': []}),
-      );
-    });
-
-    test('Should add new relation between 2 users', () async {
-      // ARRANGE
-      final _MockFirestoreServiceGetaway firestoreServiceGetaway =
-          _MockFirestoreServiceGetaway();
-
-      when(firestoreServiceGetaway.getById('users', '456')).thenAnswer(
-        (_) => Future.value({
-          'followers': ['987'],
-        }),
-      );
-
-      when(firestoreServiceGetaway.getById('users', '123')).thenAnswer(
-        (_) => Future.value({
-          'followings': ['654'],
-        }),
-      );
-
-      final UsersService usersService = UsersService(
-        firestoreServiceGetaway: firestoreServiceGetaway,
-      );
-
-      // ACT
-      await usersService.updateRelations('123', '456');
-
-      // ASSERT
-      verify(
-        firestoreServiceGetaway.updateByDocument('users', '456', {
-          'followers': ['987', '123']
-        }),
-      );
-
-      verify(
-        firestoreServiceGetaway.updateByDocument('users', '123', {
-          'followings': ['654', '456']
-        }),
+        firestoreServiceGetaway.removeDocumentInCollection(
+            'users', 'followers', '456', '123'),
       );
     });
   });

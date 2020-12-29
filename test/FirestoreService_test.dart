@@ -75,6 +75,93 @@ main() {
       expect(data, null);
     });
   });
+
+  group('FirestoreService.getUsersByIds', () {
+    test(
+        'Should call getList method from FirestoreServiceGetaway with list ids',
+        () async {
+      // ARRANGE
+      final _MockFirestoreServiceGetaway firestoreServiceGetaway =
+          _MockFirestoreServiceGetaway();
+
+      when(firestoreServiceGetaway.getList('users', listIds: ['123', '456']))
+          .thenAnswer(
+        (_) => Future.value([
+          {'uid': '123'},
+          {'uid': '456'}
+        ]),
+      );
+
+      FirestoreService firestoreService = FirestoreService(
+        firestoreServiceGetaway: firestoreServiceGetaway,
+      );
+
+      // ACT
+      List<Map<String, dynamic>> data =
+          await firestoreService.getUsersByIds(['123', '456']);
+
+      // ASSERT
+      expect(data.length, 2);
+    });
+
+    test(
+        'Should call getList method from FirestoreServiceGetaway with list ids',
+        () async {
+      // ARRANGE
+      final _MockFirestoreServiceGetaway firestoreServiceGetaway =
+          _MockFirestoreServiceGetaway();
+
+      when(firestoreServiceGetaway.getList('users', listIds: [])).thenAnswer(
+        (_) => Future.value([]),
+      );
+
+      FirestoreService firestoreService = FirestoreService(
+        firestoreServiceGetaway: firestoreServiceGetaway,
+      );
+
+      // ACT
+      List<Map<String, dynamic>> data =
+          await firestoreService.getUsersByIds([]);
+
+      // ASSERT
+      expect(data.length, 0);
+    });
+  });
+
+  group('FirestoreService.getListMessage', () {
+    test('Should call getListFormDocAndSubDoc from FirestoreServiceGetaway',
+        () async {
+      // ARRANGE
+      final _MockFirestoreServiceGetaway firestoreServiceGetaway =
+          _MockFirestoreServiceGetaway();
+
+      when(firestoreServiceGetaway.getListFormDocAndSubDoc(
+              'chats', '123', '456'))
+          .thenAnswer(
+        (_) => Stream.fromFuture(
+          Future.value([
+            {
+              'uid': '123',
+            },
+            {
+              'uid': '456',
+            }
+          ]),
+        ),
+      );
+
+      FirestoreService firestoreService = FirestoreService(
+        firestoreServiceGetaway: firestoreServiceGetaway,
+      );
+
+      // ACT
+      Stream<List<Map<String, dynamic>>> stream =
+          firestoreService.getListMessage('123', '456');
+
+      // ASSERT
+      expect((await stream.first).length, 2);
+    });
+  });
 }
 
 class _MockFirestoreServiceGetaway extends Mock

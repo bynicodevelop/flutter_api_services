@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter_api_services/FirestoreService.dart';
 import 'package:flutter_api_services/exceptions/AuthenticationException.dart';
 import 'package:flutter_api_services/getaway/FirebaseAuthGetaway.dart';
@@ -28,12 +30,43 @@ class UserService {
         status: data[UserModel.STATUS],
         avatarURL: data[UserModel.AVATAR_URL],
         // Follow-ers/ings
-        followers: data[UserModel.FOLLOWERS]?.length ?? 0,
-        followings: data[UserModel.FOLLOWINGS]?.length ?? 0,
-        followersList: List<String>.from(data[UserModel.FOLLOWERS] ?? []),
-        followingsList: List<String>.from(data[UserModel.FOLLOWINGS] ?? []),
+        followers: data[UserModel.FOLLOWERS] ?? 0,
+        followings: data[UserModel.FOLLOWINGS] ?? 0,
+        followersList: List<Map<String, dynamic>>.from(
+            data[UserModel.FOLLOWERS_LIST] ?? []),
+        followingsList: List<Map<String, dynamic>>.from(
+            data[UserModel.FOLLOWINGS_LIST] ?? []),
       );
     });
+  }
+
+  Future<List<UserModel>> getFollowers(List<String> followersIds) async {
+    if (followersIds.length == 0) {
+      return [];
+    }
+
+    List<Map<String, dynamic>> users =
+        await firestoreService.getUsersByIds(followersIds);
+
+    return users.map(
+      (e) {
+        return UserModel(
+          uid: e[UserModel.UID],
+          email: e[UserModel.EMAIL],
+          // From database
+          username: e[UserModel.USERNAME],
+          status: e[UserModel.STATUS],
+          avatarURL: e[UserModel.AVATAR_URL],
+          // Follow-ers/ings
+          followers: e[UserModel.FOLLOWERS] ?? 0,
+          followings: e[UserModel.FOLLOWINGS] ?? 0,
+          followersList: List<Map<String, dynamic>>.from(
+              e[UserModel.FOLLOWERS_LIST] ?? []),
+          followingsList: List<Map<String, dynamic>>.from(
+              e[UserModel.FOLLOWINGS_LIST] ?? []),
+        );
+      },
+    ).toList();
   }
 
   Future<UserModel> signInWithEmailAndPassword(
