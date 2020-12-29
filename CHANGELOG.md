@@ -1,3 +1,7 @@
+## [0.0.3+1] - 2020-12-27
+
+- Removed print in list of messages
+
 ## [0.0.3] - 2020-12-27
 
 - Added method for add chat and updated the system to create relationship

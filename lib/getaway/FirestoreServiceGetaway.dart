@@ -132,17 +132,14 @@ class FirestoreServiceGetaway {
         .snapshots();
 
     return querySnapshot.asyncMap(
-      (event) {
-        print(event.docs);
-        return event.docs
-            .map((e) => {
-                  ...{
-                    'uid': e.id,
-                  },
-                  ...e.data()
-                })
-            .toList();
-      },
+      (event) => event.docs
+          .map((e) => {
+                ...{
+                  'uid': e.id,
+                },
+                ...e.data()
+              })
+          .toList(),
     );
   }
 
