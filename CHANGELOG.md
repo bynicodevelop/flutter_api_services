@@ -1,3 +1,7 @@
+## [0.0.3+2] - 2020-12-31
+
+- Convert au string to lower case
+
 ## [0.0.3+1] - 2020-12-27
 
 - Removed print in list of messages

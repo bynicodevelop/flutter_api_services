@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter_api_services/FirestoreService.dart';
 import 'package:flutter_api_services/exceptions/AuthenticationException.dart';
 import 'package:flutter_api_services/getaway/FirebaseAuthGetaway.dart';
@@ -72,8 +70,8 @@ class UserService {
   Future<UserModel> signInWithEmailAndPassword(
       String email, String password) async {
     try {
-      Map<String, dynamic> data =
-          await firebaseAuthGetaway.signInWithEmailAndPassword(email, password);
+      Map<String, dynamic> data = await firebaseAuthGetaway
+          .signInWithEmailAndPassword(email.toLowerCase(), password);
 
       return UserModel(
         uid: data[UserModel.UID],
@@ -87,8 +85,8 @@ class UserService {
   Future<UserModel> signUpWithEmailAndPassword(
       String email, String password) async {
     try {
-      Map<String, dynamic> data =
-          await firebaseAuthGetaway.signUpWithEmailAndPassword(email, password);
+      Map<String, dynamic> data = await firebaseAuthGetaway
+          .signUpWithEmailAndPassword(email.toLowerCase(), password);
 
       return UserModel(
         uid: data[UserModel.UID],
@@ -114,13 +112,13 @@ class UserService {
   Future<void> update(String key, String value) async {
     if (key != UserModel.PASSWORD) {
       await firebaseAuthGetaway.updateField({
-        key: value,
+        key: value.toLowerCase(),
       });
     }
 
     if (key == UserModel.EMAIL) {
       try {
-        await firebaseAuthGetaway.updateEmail(value);
+        await firebaseAuthGetaway.updateEmail(value.toLowerCase());
       } on AuthenticationException catch (e) {
         throw new AuthenticationException(code: e.code);
       }
