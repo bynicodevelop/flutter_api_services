@@ -70,8 +70,8 @@ class UserService {
   Future<UserModel> signInWithEmailAndPassword(
       String email, String password) async {
     try {
-      Map<String, dynamic> data = await firebaseAuthGetaway
-          .signInWithEmailAndPassword(email.toLowerCase(), password);
+      Map<String, dynamic> data =
+          await firebaseAuthGetaway.signInWithEmailAndPassword(email, password);
 
       return UserModel(
         uid: data[UserModel.UID],
@@ -85,8 +85,8 @@ class UserService {
   Future<UserModel> signUpWithEmailAndPassword(
       String email, String password) async {
     try {
-      Map<String, dynamic> data = await firebaseAuthGetaway
-          .signUpWithEmailAndPassword(email.toLowerCase(), password);
+      Map<String, dynamic> data =
+          await firebaseAuthGetaway.signUpWithEmailAndPassword(email, password);
 
       return UserModel(
         uid: data[UserModel.UID],
@@ -118,7 +118,7 @@ class UserService {
 
     if (key == UserModel.EMAIL) {
       try {
-        await firebaseAuthGetaway.updateEmail(value.toLowerCase());
+        await firebaseAuthGetaway.updateEmail(value);
       } on AuthenticationException catch (e) {
         throw new AuthenticationException(code: e.code);
       }
