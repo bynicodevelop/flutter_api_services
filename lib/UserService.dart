@@ -112,7 +112,7 @@ class UserService {
   Future<void> update(String key, String value) async {
     if (key != UserModel.PASSWORD) {
       await firebaseAuthGetaway.updateField({
-        key: value.toLowerCase(),
+        key: value,
       });
     }
 

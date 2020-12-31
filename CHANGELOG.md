@@ -1,3 +1,7 @@
+## [0.0.3+3] - 2020-12-31
+
+- Fixe Bug : Convert au string to lower case
+
 ## [0.0.3+2] - 2020-12-31
 
 - Convert au string to lower case
